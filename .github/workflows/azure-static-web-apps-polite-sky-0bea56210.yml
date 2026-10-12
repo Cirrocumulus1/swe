@@ -31,7 +31,7 @@ jobs:
           app_location: "/"
           api_location: "api"
           output_location: "dist"
-          app_build_command: "npm run build"
+          app_build_command: "npm run build && cp dist/taskpane.html dist/index.html"
           ###### End of Repository/Build Configurations ######
         env:
           ADDIN_BASE_URL: "https://polite-sky-0bea56210.4.azurestaticapps.net"
