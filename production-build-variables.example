@@ -1,0 +1,5 @@
+ADDIN_BASE_URL=https://addin.example.com/
+DEVELOPER_NAME=Your organization
+DEVELOPER_WEBSITE_URL=https://www.example.com/
+PRIVACY_URL=https://www.example.com/privacy
+TERMS_OF_USE_URL=https://www.example.com/terms

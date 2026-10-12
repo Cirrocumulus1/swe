@@ -15,11 +15,11 @@
   },
   "name": {
     "short": "Projekt Auswahl",
-    "full": "Contoso Task Pane Add-in"
+    "full": "Projekt Auswahl für Outlook"
   },
   "description": {
-    "short": "A template to get started.",
-    "full": "This is the template to get started."
+    "short": "Ordnet E-Mails einem Teamspace-Projekt zu.",
+    "full": "Wählt ein Teamspace-Projekt aus und ordnet es der aktuellen Outlook-Nachricht zu."
   },
   "icons": {
     "outline": "assets/outline.png",
@@ -83,7 +83,7 @@
               "groups": [
                 {
                   "id": "msgComposeGroup",
-                  "label": "Contoso Add-in",
+                  "label": "Projekt Auswahl",
                   "icons": [
                     {
                       "size": 16,

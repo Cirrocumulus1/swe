@@ -2,9 +2,9 @@ import * as React from "react";
 import { Image, tokens, makeStyles } from "@fluentui/react-components";
 
 export interface HeaderProps {
-  title: string;
+  title?: string;
   logo: string;
-  message: string;
+  message?: string;
 }
 
 const useStyles = makeStyles({
@@ -12,25 +12,24 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    paddingBottom: "30px",
-    paddingTop: "100px",
-    backgroundColor: tokens.colorNeutralBackground3,
+    justifyContent: "center",
+    paddingTop: "20px",
+    paddingBottom: "10px",
+    backgroundColor: tokens.colorNeutralBackground1, // Reines Weiß
   },
-  message: {
-    fontSize: tokens.fontSizeHero900,
-    fontWeight: tokens.fontWeightRegular,
-    fontColor: tokens.colorNeutralBackgroundStatic,
+  logo: {
+    width: "110px",
+    height: "110px",
+    objectFit: "contain",
   },
 });
 
-const Header: React.FC<HeaderProps> = (props: HeaderProps) => {
-  const { title, logo, message } = props;
+const Header: React.FC<HeaderProps> = ({ title, logo }) => {
   const styles = useStyles();
 
   return (
     <section className={styles.welcome__header}>
-      <Image width="90" height="90" src={logo} alt={title} />
-      <h1 className={styles.message}>{message}</h1>
+      <Image className={styles.logo} src={logo} alt={title || "Logo"} />
     </section>
   );
 };
