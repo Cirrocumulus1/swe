@@ -3,3 +3,9 @@ dist/
 local.settings.json
 .env
 .env.production
+
+# Build-Artefakte & Temporaeres
+*.zip
+package/
+api/.azurite/
+
