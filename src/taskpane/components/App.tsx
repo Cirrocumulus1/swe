@@ -41,6 +41,16 @@ interface ExistingTag {
   id: string;
   name?: string;
   categoryTag: string;
+  assignedAt?: string;
+}
+
+function formatAssignmentTimestamp(value?: string): string | undefined {
+  if (!value) return undefined;
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return undefined;
+
+  return date.toLocaleString("de-DE");
 }
 
 const App: React.FC<{ title: string }> = ({ title }) => {
@@ -64,12 +74,14 @@ const App: React.FC<{ title: string }> = ({ title }) => {
         const props = propResult.value;
         const projId = props.get("teamspace_project_id");
         const projName = props.get("teamspace_project_name");
+        const assignedAt = props.get("teamspace_tagged_at");
 
         if (projId) {
           setExistingTag({
             id: String(projId),
             name: projName ? String(projName) : undefined,
             categoryTag: `TS-${projId}`,
+            assignedAt: typeof assignedAt === "string" ? assignedAt : undefined,
           });
           return;
         }
@@ -163,6 +175,7 @@ const App: React.FC<{ title: string }> = ({ title }) => {
 
     const item = Office.context.mailbox.item;
     const categoryTag = `TS-${project.id}`;
+  const assignedAt = new Date().toISOString();
 
     // Metadaten auf dem Entwurf persistieren (Compose-kompatibel)
     item.loadCustomPropertiesAsync((propResult) => {
@@ -178,7 +191,7 @@ const App: React.FC<{ title: string }> = ({ title }) => {
       const customProps = propResult.value;
       customProps.set("teamspace_project_id", project.id);
       customProps.set("teamspace_project_name", project.name);
-      customProps.set("teamspace_tagged_at", new Date().toISOString());
+      customProps.set("teamspace_tagged_at", assignedAt);
 
       customProps.saveAsync((saveResult) => {
         if (saveResult.status === Office.AsyncResultStatus.Failed) {
@@ -191,6 +204,7 @@ const App: React.FC<{ title: string }> = ({ title }) => {
             id: project.id,
             name: project.name,
             categoryTag: categoryTag,
+            assignedAt: assignedAt,
           });
 
           setStatusMessage({
@@ -219,6 +233,11 @@ const App: React.FC<{ title: string }> = ({ title }) => {
           <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>
             Teamspace-ID: {existingTag.id}
           </Text>
+          {formatAssignmentTimestamp(existingTag.assignedAt) && (
+            <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>
+              Zugeordnet am: {formatAssignmentTimestamp(existingTag.assignedAt)}
+            </Text>
+          )}
         </Card>
       )}
 
