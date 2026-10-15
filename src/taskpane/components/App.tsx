@@ -52,97 +52,102 @@ const App: React.FC<{ title: string }> = ({ title }) => {
   } | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  // Bestehende Zuweisungen beim Öffnen der Mail prüfen
+  // Bestehende Zuweisungen beim Öffnen der Mail prüfen (Primär über customProperties)
   useEffect(() => {
-    if (window.Office?.context?.mailbox?.item?.categories) {
-      const item = Office.context.mailbox.item;
+    if (!window.Office?.context?.mailbox?.item) return;
 
-      item.categories.getAsync((catResult) => {
-        if (catResult.status === Office.AsyncResultStatus.Succeeded) {
-          const categories = catResult.value || [];
-          const tsCategory = categories.find((c: any) => {
-            const name = typeof c === "string" ? c : c.displayName;
-            return name && name.startsWith("TS-");
+    const item = Office.context.mailbox.item;
+
+    // 1. Zuerst aus customProperties lesen (kompatibel mit Neuem Outlook / Web im Compose-Modus)
+    item.loadCustomPropertiesAsync((propResult) => {
+      if (propResult.status === Office.AsyncResultStatus.Succeeded) {
+        const props = propResult.value;
+        const projId = props.get("teamspace_project_id");
+        const projName = props.get("teamspace_project_name");
+
+        if (projId) {
+          setExistingTag({
+            id: String(projId),
+            name: projName ? String(projName) : undefined,
+            categoryTag: `TS-${projId}`,
           });
-
-          if (tsCategory) {
-            const rawName = typeof tsCategory === "string" ? tsCategory : tsCategory.displayName;
-            const extractedId = rawName.replace("TS-", "");
-
-            item.loadCustomPropertiesAsync((propResult) => {
-              const projName =
-                propResult.status === Office.AsyncResultStatus.Succeeded
-                  ? propResult.value.get("teamspace_project_name")
-                  : undefined;
-
-              setExistingTag({
-                id: extractedId,
-                name: projName ? String(projName) : undefined,
-                categoryTag: rawName,
-              });
-            });
-          }
+          return;
         }
-      });
-    }
+      }
+
+      /* 
+       * HINWEIS ZUR EXCHANGE-KATEGORIEN-API:
+       * Im Neuen Outlook und OWA blockiert Microsoft item.categories im Compose-Modus.
+       * 
+       * if (item.categories) {
+       *   item.categories.getAsync((catResult) => {
+       *     if (catResult.status === Office.AsyncResultStatus.Succeeded) {
+       *       const categories = catResult.value || [];
+       *       const tsCategory = categories.find((c: any) => {
+       *         const name = typeof c === "string" ? c : c.displayName;
+       *         return name && name.startsWith("TS-");
+       *       });
+       *       if (tsCategory) {
+       *         const rawName = typeof tsCategory === "string" ? tsCategory : tsCategory.displayName;
+       *         setExistingTag({
+       *           id: rawName.replace("TS-", ""),
+       *           categoryTag: rawName,
+       *         });
+       *       }
+       *     }
+       *   });
+       * }
+       */
+    });
   }, []);
 
-  // Stellt sicher, dass das Tag in der Hauptliste existiert, bevor es der Mail zugewiesen wird
-  const ensureCategoryAndAssign = (categoryTag: string, onComplete: (error?: string) => void) => {
-    const mailbox = Office.context.mailbox;
-    const item = mailbox.item;
-
-    if (!mailbox.masterCategories) {
-      // Fallback für Umgebungen ohne masterCategories-Zugriff
-      item.categories.addAsync([categoryTag], (res) => {
-        if (res.status === Office.AsyncResultStatus.Failed) {
-          onComplete(res.error.message);
-        } else {
-          onComplete();
-        }
-      });
-      return;
-    }
-
-    // 1. Hauptkategorieliste abfragen
-    mailbox.masterCategories.getAsync((masterResult) => {
-      if (masterResult.status === Office.AsyncResultStatus.Failed) {
-        onComplete(`Hauptkategorien nicht lesbar: ${masterResult.error.message}`);
-        return;
-      }
-
-      const masterList = masterResult.value || [];
-      const existsInMaster = masterList.some((cat: any) => cat.displayName === categoryTag);
-
-      const assignToItem = () => {
-        item.categories.addAsync([categoryTag], (assignResult) => {
-          if (assignResult.status === Office.AsyncResultStatus.Failed) {
-            onComplete(assignResult.error.message);
-          } else {
-            onComplete();
-          }
-        });
-      };
-
-      // 2. Falls noch nicht in der Hauptliste: Anlegen und danach zuweisen
-      if (!existsInMaster) {
-        const newCategory = {
-          displayName: categoryTag,
-          color: (Office.MailboxEnums?.CategoryColor?.Preset0 ?? "Preset0") as Office.MailboxEnums.CategoryColor,
-        };
-
-        mailbox.masterCategories.addAsync([newCategory], (addMasterResult) => {
-          if (addMasterResult.status === Office.AsyncResultStatus.Failed) {
-            onComplete(`Kategorie konnte nicht in Hauptliste angelegt werden: ${addMasterResult.error.message}`);
-            return;
-          }
-          assignToItem();
-        });
-      } else {
-        assignToItem();
-      }
-    });
-  };
+  /*
+   * =========================================================================================
+   * INAKTIV: Kategorien-Zuweisung via Exchange masterCategories & item.categories
+   * Microsoft wirft im Neuen Outlook / OWA im Compose-Modus: "Dieser Vorgang wird nicht unterstützt."
+   * =========================================================================================
+   *
+   * const ensureCategoryAndAssign = (categoryTag: string, onComplete: (error?: string) => void) => {
+   *   const mailbox = Office.context.mailbox;
+   *   const item = mailbox.item;
+   *   if (!mailbox.masterCategories) {
+   *     item.categories.addAsync([categoryTag], (res) => {
+   *       if (res.status === Office.AsyncResultStatus.Failed) onComplete(res.error.message);
+   *       else onComplete();
+   *     });
+   *     return;
+   *   }
+   *   mailbox.masterCategories.getAsync((masterResult) => {
+   *     if (masterResult.status === Office.AsyncResultStatus.Failed) {
+   *       onComplete(`Hauptkategorien nicht lesbar: ${masterResult.error.message}`);
+   *       return;
+   *     }
+   *     const masterList = masterResult.value || [];
+   *     const existsInMaster = masterList.some((cat: any) => cat.displayName === categoryTag);
+   *     const assignToItem = () => {
+   *       item.categories.addAsync([categoryTag], (assignResult) => {
+   *         if (assignResult.status === Office.AsyncResultStatus.Failed) onComplete(assignResult.error.message);
+   *         else onComplete();
+   *       });
+   *     };
+   *     if (!existsInMaster) {
+   *       const newCategory = {
+   *         displayName: categoryTag,
+   *         color: (Office.MailboxEnums?.CategoryColor?.Preset0 ?? "Preset0") as Office.MailboxEnums.CategoryColor,
+   *       };
+   *       mailbox.masterCategories.addAsync([newCategory], (addMasterResult) => {
+   *         if (addMasterResult.status === Office.AsyncResultStatus.Failed) {
+   *           onComplete(`Kategorie konnte nicht in Hauptliste angelegt werden: ${addMasterResult.error.message}`);
+   *           return;
+   *         }
+   *         assignToItem();
+   *       });
+   *     } else {
+   *       assignToItem();
+   *     }
+   *   });
+   * };
+   */
 
   const handleProjectSelected = (project: Project) => {
     if (!window.Office?.context?.mailbox?.item) {
@@ -159,36 +164,40 @@ const App: React.FC<{ title: string }> = ({ title }) => {
     const item = Office.context.mailbox.item;
     const categoryTag = `TS-${project.id}`;
 
-    ensureCategoryAndAssign(categoryTag, (error) => {
-      if (error) {
+    // Metadaten auf dem Entwurf persistieren (Compose-kompatibel)
+    item.loadCustomPropertiesAsync((propResult) => {
+      if (propResult.status === Office.AsyncResultStatus.Failed) {
         setStatusMessage({
-          text: `Fehler beim Setzen der Kategorie: ${error}`,
+          text: `Fehler beim Laden der Metadaten: ${propResult.error.message}`,
           intent: "error",
         });
         setIsSaving(false);
         return;
       }
 
-      // Metadaten parallel persistieren
-      item.loadCustomPropertiesAsync((propResult) => {
-        if (propResult.status === Office.AsyncResultStatus.Succeeded) {
-          const customProps = propResult.value;
-          customProps.set("teamspace_project_id", project.id);
-          customProps.set("teamspace_project_name", project.name);
-          customProps.set("teamspace_tagged_at", new Date().toISOString());
-          customProps.saveAsync();
+      const customProps = propResult.value;
+      customProps.set("teamspace_project_id", project.id);
+      customProps.set("teamspace_project_name", project.name);
+      customProps.set("teamspace_tagged_at", new Date().toISOString());
+
+      customProps.saveAsync((saveResult) => {
+        if (saveResult.status === Office.AsyncResultStatus.Failed) {
+          setStatusMessage({
+            text: `Fehler beim Speichern der Projekt-Metadaten: ${saveResult.error.message}`,
+            intent: "error",
+          });
+        } else {
+          setExistingTag({
+            id: project.id,
+            name: project.name,
+            categoryTag: categoryTag,
+          });
+
+          setStatusMessage({
+            text: `Projekt "${project.name}" (ID: ${project.id}) erfolgreich zugeordnet.`,
+            intent: "success",
+          });
         }
-
-        setExistingTag({
-          id: project.id,
-          name: project.name,
-          categoryTag: categoryTag,
-        });
-
-        setStatusMessage({
-          text: `Kategorie "${categoryTag}" (${project.name}) zugewiesen.`,
-          intent: "success",
-        });
         setIsSaving(false);
       });
     });
@@ -216,7 +225,7 @@ const App: React.FC<{ title: string }> = ({ title }) => {
       <ProjectSelector onProjectSelected={handleProjectSelected} />
 
       <div className={styles.statusContainer}>
-        {isSaving && <Spinner size="tiny" label="Prüfe und weise Kategorie zu..." />}
+        {isSaving && <Spinner size="tiny" label="Speichere Projekt-Metadaten..." />}
 
         {statusMessage && !isSaving && (
           <MessageBar intent={statusMessage.intent}>
