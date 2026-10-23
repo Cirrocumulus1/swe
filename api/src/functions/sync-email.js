@@ -39,9 +39,8 @@ function requiredSetting(name) {
 }
 
 async function validateOfficeToken(request, context) {
-  const authorization = request.headers.get("authorization") || "";
-  const match = authorization.match(/^Bearer\s+(.+)$/i);
-  if (!match) throw new RequestError(401, "Anmeldung erforderlich. Bitte Outlook erneut öffnen.");
+  const officeToken = request.headers.get("x-office-sso-token")?.trim();
+  if (!officeToken) throw new RequestError(401, "Anmeldung erforderlich. Bitte Outlook erneut öffnen.");
 
   const tenantId = requiredSetting("TENANT_ID");
   const clientId = requiredSetting("CLIENT_ID");
@@ -49,7 +48,7 @@ async function validateOfficeToken(request, context) {
     `api://polite-sky-0bea56210.4.azurestaticapps.net/${clientId}`;
   let tokenPayload;
   try {
-    tokenPayload = await verifyOfficeToken(match[1].trim(), { tenantId, clientId, appIdUri });
+    tokenPayload = await verifyOfficeToken(officeToken, { tenantId, clientId, appIdUri });
   } catch (error) {
     context.error("Outlook token verification failed:", error);
     const errorCode = error?.code || error?.name || "NO_CODE";

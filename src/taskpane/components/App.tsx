@@ -369,7 +369,7 @@ const App: React.FC<{ title: string }> = ({ title }) => {
       const response = await window.fetch("/api/sync-email", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          "X-Office-SSO-Token": accessToken,
           "Content-Type": "application/json",
           Accept: "application/json",
         },

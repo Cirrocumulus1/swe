@@ -10,7 +10,7 @@ Die Function cached die Teamspace-Antwort 15 Minuten im Arbeitsspeicher. Der Bro
 
 ## Sofortmaßnahme: Teamspace-Zugang
 
-Die zuvor im Client enthaltenen Zugangsdaten als offengelegt behandeln: im Teamspace rotieren oder sperren, Berechtigungen prüfen und Audit-Logs kontrollieren. Neue, lesebeschränkte Zugangsdaten ausschließlich als Azure Function App Settings beziehungsweise in einem unterstützten Key-Vault-Setup hinterlegen. Nicht in Manifest, Clientcode, Buildvariablen oder Git einchecken. `api/local.settings.json` ist ignoriert und darf nicht committet werden.
+Die zuvor im Client enthaltenen Zugangsdaten als offengelegt behandeln: im Teamspace rotieren oder sperren, Berechtigungen prüfen und Audit-Logs kontrollieren. Neue, lesebeschränkte Zugangsdaten ausschließlich als Azure Function App Settings beziehungsweise in einem unterstützten Key-Vault-Setup hinterlegen. Nicht in Manifest, Clientcode, Buildvariablen oder Git einchecken. `api/local.settings.json` ist ignoriert und darf nicht committet werden. Das Office-SSO-Token wird über `X-Office-SSO-Token` übertragen, da Azure Static Web Apps `Authorization` für seine eigene Authentifizierung verwenden kann.
 
 ## Azure-Konfiguration
 
@@ -67,9 +67,9 @@ npm run build
 npm run validate:prod
 ```
 
-Der Build ersetzt im erzeugten Manifest Taskpane- und Icon-URLs, `validDomains` und Entwicklerangaben. Die vorhandene Add-in-GUID bleibt erhalten. Die Manifestversion muss für jedes veröffentlichte Update erhöht werden. Das Produktionspaket verwendet die Manifestversion im ZIP-Dateinamen; jeder Rollout erhält daher einen neuen ZIP-Namen. Die nächste Version ist `1.0.10`; Version `1.0.9` wurde bereits veröffentlicht. Für Node-Builds und die SWA-Function-Runtime ist Node.js 22 festgelegt.
+Der Build ersetzt im erzeugten Manifest Taskpane- und Icon-URLs, `validDomains` und Entwicklerangaben. Die vorhandene Add-in-GUID bleibt erhalten. Die Manifestversion muss für jedes veröffentlichte Update erhöht werden. Das Produktionspaket verwendet die Manifestversion im ZIP-Dateinamen; jeder Rollout erhält daher einen neuen ZIP-Namen. Die nächste Version ist `1.0.11`; Version `1.0.10` wurde bereits veröffentlicht. Für Node-Builds und die SWA-Function-Runtime ist Node.js 22 festgelegt.
 
-Der Git-Tag `v1.0.9` kennzeichnet das vorherige Release. Den Tag `v1.0.10` auf dem finalen Release-Commit anlegen, nicht auf einem noch uncommitteten Arbeitsstand.
+Der Git-Tag `v1.0.10` kennzeichnet das vorherige Release. Den Tag `v1.0.11` auf dem finalen Release-Commit anlegen, nicht auf einem noch uncommitteten Arbeitsstand.
 
 Danach `dist/` und die API über die gewählte Azure-Pipeline veröffentlichen, HTTPS und `/api/projects` prüfen und die hochgeladene Manifestdatei validieren. Keine Zugangsdaten in die statischen `dist/`-Dateien aufnehmen.
 
