@@ -1,8 +1,8 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
   "manifestVersion": "1.17",
-  "version": "1.0.0",
-  "id": "a860814c-e238-4e66-b96a-5ac1f4dae627",
+  "version": "1.0.1",
+  "id": "0d7706a6-f473-4eda-8c19-4d333235f334",
   "localizationInfo": {
     "defaultLanguageTag": "en-us",
     "additionalLanguages": []
@@ -14,8 +14,8 @@
     "termsOfUseUrl": "https://www.contoso.com/servicesagreement"
   },
   "name": {
-    "short": "Projekt Auswahl",
-    "full": "Projekt Auswahl für Outlook"
+    "short": "Projekt Auswahl DEV",
+    "full": "Projekt Auswahl für Outlook DEV LOCAL"
   },
   "description": {
     "short": "Ordnet E-Mails einem Teamspace-Projekt zu.",
@@ -36,6 +36,10 @@
         }
       ]
     }
+  },
+  "webApplicationInfo": {
+    "id": "5378ef29-ee9e-42e7-9980-e010dc081900",
+    "resource": "api://localhost:3000/5378ef29-ee9e-42e7-9980-e010dc081900"
   },
   "extensions": [
     {
@@ -69,7 +73,7 @@
               "id": "TaskPaneRuntimeShow",
               "type": "openPage",
               "pinnable": false,
-              "view": "dashboard"
+              "supportsNoItemContext": true
             }
           ]
         }
@@ -101,6 +105,60 @@
                   "controls": [
                     {
                       "id": "msgComposeOpenPaneButton",
+                      "type": "button",
+                      "label": "Projektauswahl anzeigen",
+                      "icons": [
+                        {
+                          "size": 16,
+                          "url": "https://localhost:3000/assets/icon-16.png"
+                        },
+                        {
+                          "size": 32,
+                          "url": "https://localhost:3000/assets/icon-32.png"
+                        },
+                        {
+                          "size": 80,
+                          "url": "https://localhost:3000/assets/icon-80.png"
+                        }
+                      ],
+                      "supertip": {
+                        "title": "Projektauswahl anzeigen",
+                        "description": "Zeigt die Projektauswahl an."
+                      },
+                      "actionId": "TaskPaneRuntimeShow"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "contexts": ["mailRead"],
+          "tabs": [
+            {
+              "builtInTabId": "TabDefault",
+              "groups": [
+                {
+                  "id": "msgReadGroup",
+                  "label": "Projekt Auswahl",
+                  "icons": [
+                    {
+                      "size": 16,
+                      "url": "https://localhost:3000/assets/icon-16.png"
+                    },
+                    {
+                      "size": 32,
+                      "url": "https://localhost:3000/assets/icon-32.png"
+                    },
+                    {
+                      "size": 80,
+                      "url": "https://localhost:3000/assets/icon-80.png"
+                    }
+                  ],
+                  "controls": [
+                    {
+                      "id": "msgReadOpenPaneButton",
                       "type": "button",
                       "label": "Projektauswahl anzeigen",
                       "icons": [

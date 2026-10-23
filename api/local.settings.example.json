@@ -6,6 +6,10 @@
     "AZURE_FUNCTIONS_ENVIRONMENT": "Development",
     "TEAMSPACE_API_BASE_URL": "https://swe-consult.teamspace.de/api/project",
     "TEAMSPACE_USERNAME": "",
-    "TEAMSPACE_PASSWORD": ""
+    "TEAMSPACE_PASSWORD": "",
+    "TENANT_ID": "",
+    "CLIENT_ID": "",
+    "CLIENT_SECRET": "",
+    "ADDIN_APP_ID_URI": ""
   }
 }

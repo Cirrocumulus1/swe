@@ -31,10 +31,12 @@ jobs:
           app_location: "/"
           api_location: "api"
           output_location: "dist"
-          app_build_command: "npm run build && cp dist/taskpane.html dist/index.html"
+          app_build_command: "npm run build && cp dist/taskpane.html dist/index.html && cp staticwebapp.config.json dist/staticwebapp.config.json"
           ###### End of Repository/Build Configurations ######
         env:
           ADDIN_BASE_URL: "https://polite-sky-0bea56210.4.azurestaticapps.net"
+          ADDIN_MANIFEST_ID: "a860814c-e238-4e66-b96a-5ac1f4dae627"
+          ENTRA_CLIENT_ID: ${{ vars.ENTRA_CLIENT_ID }}
           DEVELOPER_NAME: "Soil Water Ecology Consult GmbH"
           DEVELOPER_WEBSITE_URL: "https://swe-consult.de"
           PRIVACY_URL: "https://swe-consult.de/datenschutz"

@@ -26,6 +26,14 @@ function requireHttpsUrl(name) {
 
 function createProductionManifest(content) {
   const baseUrl = requireHttpsUrl("ADDIN_BASE_URL").replace(/\/$/, "") + "/";
+  const manifestId = requiredProductionValue("ADDIN_MANIFEST_ID");
+  const entraClientId = requiredProductionValue("ENTRA_CLIENT_ID");
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(manifestId)) {
+    throw new Error("ADDIN_MANIFEST_ID must be a valid Microsoft 365 app ID.");
+  }
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(entraClientId)) {
+    throw new Error("ENTRA_CLIENT_ID must be a valid Microsoft Entra application ID.");
+  }
   const manifest = JSON.parse(content.toString());
   const replaceDevelopmentUrls = (value) => {
     if (Array.isArray(value)) {
@@ -40,7 +48,12 @@ function createProductionManifest(content) {
   };
 
   const productionManifest = replaceDevelopmentUrls(manifest);
+  productionManifest.id = manifestId;
   productionManifest.validDomains = [new URL(baseUrl).host];
+  productionManifest.webApplicationInfo = {
+    id: entraClientId,
+    resource: process.env.ADDIN_APP_ID_URI?.trim() || `api://${entraClientId}`,
+  };
   productionManifest.developer = {
     name: requiredProductionValue("DEVELOPER_NAME"),
     websiteUrl: requireHttpsUrl("DEVELOPER_WEBSITE_URL"),
@@ -143,7 +156,8 @@ module.exports = async (env, options) => {
       proxy: [
         {
           context: ["/api"],
-          target: process.env.API_PROXY_TARGET || "http://localhost:7071",
+          target: "http://127.0.0.1:7071",
+          secure: false,
           changeOrigin: true,
         },
       ],

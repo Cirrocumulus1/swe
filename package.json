@@ -6,22 +6,28 @@
     "url": "https://github.com/OfficeDev/Office-Addin-TaskPane-React.git"
   },
   "license": "MIT",
+  "engines": {
+    "node": "22.x"
+  },
   "config": {
-    "app_to_debug": "outlook",
-    "app_type_to_debug": "desktop",
     "dev_server_port": 3000
   },
   "scripts": {
     "build": "webpack --mode production",
     "build:dev": "webpack --mode development",
     "dev-server": "webpack serve --mode development",
+    "start": "npm run dev-server",
+    "start:excel": "office-addin-debugging start manifest.json desktop --app excel",
+    "start:powerpoint": "office-addin-debugging start manifest.json desktop --app powerpoint",
+    "start:word": "office-addin-debugging start manifest.json desktop --app word",
     "start:api": "npm --prefix api start",
+    "start:storage": "npm --prefix api run start:storage",
+    "sideload:owa": "powershell -NoProfile -ExecutionPolicy Bypass -File ./sideload-owa.ps1",
     "lint": "office-addin-lint check",
     "lint:fix": "office-addin-lint fix",
     "prettier": "office-addin-lint prettier",
     "signin": "office-addin-dev-settings m365-account login",
     "signout": "office-addin-dev-settings m365-account logout",
-    "start": "office-addin-debugging start manifest.json",
     "stop": "office-addin-debugging stop manifest.json",
     "validate": "office-addin-manifest validate manifest.json",
     "validate:prod": "office-addin-manifest validate dist/manifest.json",

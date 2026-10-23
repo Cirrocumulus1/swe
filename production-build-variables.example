@@ -1,4 +1,6 @@
 ADDIN_BASE_URL=https://addin.example.com/
+ADDIN_MANIFEST_ID=a860814c-e238-4e66-b96a-5ac1f4dae627
+ENTRA_CLIENT_ID=00000000-0000-0000-0000-000000000000
 DEVELOPER_NAME=Your organization
 DEVELOPER_WEBSITE_URL=https://www.example.com/
 PRIVACY_URL=https://www.example.com/privacy

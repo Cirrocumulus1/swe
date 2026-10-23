@@ -5,14 +5,16 @@
   "type": "module",
   "main": "src/functions/*.js",
   "engines": {
-    "node": ">=20"
+    "node": "22.x"
   },
   "scripts": {
     "start": "func start --port 7071",
     "start:storage": "azurite --silent --location ./.azurite"
   },
   "dependencies": {
-    "@azure/functions": "^4.16.5"
+    "@azure/functions": "^4.16.5",
+    "@azure/identity": "4.13.1",
+    "jose": "^6.2.13"
   },
   "devDependencies": {
     "azurite": "^3.37.0"
