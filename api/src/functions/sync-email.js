@@ -1,11 +1,10 @@
 import { app } from "@azure/functions";
 import { ClientSecretCredential } from "@azure/identity";
-import { createRemoteJWKSet, jwtVerify } from "jose";
+import { verifyOfficeToken } from "../office-token.js";
 
 const GRAPH_BASE_URL = "https://graph.microsoft.com/v1.0";
 const GRAPH_SCOPE = "https://graph.microsoft.com/.default";
 let graphCredential;
-const signingKeysByTenant = new Map();
 
 class RequestError extends Error {
   constructor(status, message) {
@@ -39,18 +38,6 @@ function requiredSetting(name) {
   return value;
 }
 
-function getSigningKeys(tenantId) {
-  let signingKeys = signingKeysByTenant.get(tenantId);
-  if (!signingKeys) {
-    const jwksUri = new URL(
-      `https://login.microsoftonline.com/${encodeURIComponent(tenantId)}/discovery/v2.0/keys`
-    );
-    signingKeys = createRemoteJWKSet(jwksUri);
-    signingKeysByTenant.set(tenantId, signingKeys);
-  }
-  return signingKeys;
-}
-
 async function validateOfficeToken(request, context) {
   const authorization = request.headers.get("authorization") || "";
   const match = authorization.match(/^Bearer\s+(.+)$/i);
@@ -60,23 +47,15 @@ async function validateOfficeToken(request, context) {
   const clientId = requiredSetting("CLIENT_ID");
   const appIdUri = process.env.ADDIN_APP_ID_URI?.trim() ||
     `api://polite-sky-0bea56210.4.azurestaticapps.net/${clientId}`;
-  const acceptedIssuers = [
-    `https://login.microsoftonline.com/${tenantId}/v2.0`,
-    `https://sts.windows.net/${tenantId}/`,
-  ];
-  const acceptedAudiences = [clientId, appIdUri, `api://${clientId}`];
-
   let tokenPayload;
   try {
-    ({ payload: tokenPayload } = await jwtVerify(match[1].trim(), getSigningKeys(tenantId), {
-      issuer: acceptedIssuers,
-      audience: acceptedAudiences,
-    }));
+    tokenPayload = await verifyOfficeToken(match[1].trim(), { tenantId, clientId, appIdUri });
   } catch (error) {
     context.error("Outlook token verification failed:", error);
+    const errorCode = error?.code || error?.name || "NO_CODE";
     throw new RequestError(
       401,
-      `Token-Validierung fehlgeschlagen: [${error?.code || "NO_CODE"}] ${error?.message || error}`
+      `Token-Validierung fehlgeschlagen: [${errorCode}] ${error?.message || error}`
     );
   }
 

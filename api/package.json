@@ -9,12 +9,14 @@
   },
   "scripts": {
     "start": "func start --port 7071",
-    "start:storage": "azurite --silent --location ./.azurite"
+    "start:storage": "azurite --silent --location ./.azurite",
+    "test": "node --test"
   },
   "dependencies": {
     "@azure/functions": "^4.16.5",
     "@azure/identity": "4.13.1",
-    "jose": "^6.2.13"
+    "jsonwebtoken": "9.0.3",
+    "jwks-rsa": "3.2.0"
   },
   "devDependencies": {
     "azurite": "^3.37.0"
