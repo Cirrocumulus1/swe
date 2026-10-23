@@ -8,4 +8,6 @@ local.settings.json
 *.zip
 package/
 api/.azurite/
+*.azurite*
+__blobstorage__/
 

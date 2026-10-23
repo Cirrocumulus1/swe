@@ -339,7 +339,10 @@ const App: React.FC<{ title: string }> = ({ title }) => {
       }
 
       const userEmail = mailbox.userProfile.emailAddress;
-      const accessToken = await OfficeRuntime.auth.getAccessToken({ allowSignInPrompt: true });
+      const accessToken = await OfficeRuntime.auth.getAccessToken({
+        allowSignInPrompt: true,
+        allowConsentPrompt: true,
+      });
       const response = await window.fetch("/api/sync-email", {
         method: "POST",
         headers: {

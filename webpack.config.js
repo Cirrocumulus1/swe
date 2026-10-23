@@ -4,11 +4,12 @@ const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const webpack = require("webpack");
+const productionDefaults = require("./scripts/production-config");
 
 const urlDev = "https://localhost:3000/";
 
 function requiredProductionValue(name) {
-  const value = process.env[name]?.trim();
+  const value = process.env[name]?.trim() || productionDefaults[name];
   if (!value) {
     throw new Error(`Set ${name} before creating a production manifest.`);
   }
@@ -48,11 +49,16 @@ function createProductionManifest(content) {
   };
 
   const productionManifest = replaceDevelopmentUrls(manifest);
+  productionManifest.version = productionDefaults.PRODUCTION_VERSION;
   productionManifest.id = manifestId;
+  productionManifest.name = {
+    short: productionDefaults.PRODUCTION_NAME_SHORT,
+    full: productionDefaults.PRODUCTION_NAME_FULL,
+  };
   productionManifest.validDomains = [new URL(baseUrl).host];
   productionManifest.webApplicationInfo = {
     id: entraClientId,
-    resource: process.env.ADDIN_APP_ID_URI?.trim() || `api://${entraClientId}`,
+    resource: process.env.ADDIN_APP_ID_URI?.trim() || productionDefaults.ADDIN_APP_ID_URI,
   };
   productionManifest.developer = {
     name: requiredProductionValue("DEVELOPER_NAME"),

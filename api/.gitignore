@@ -1,0 +1,3 @@
+.azurite/
+*.azurite*
+__blobstorage__/

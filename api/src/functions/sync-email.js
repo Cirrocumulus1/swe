@@ -51,14 +51,15 @@ function getSigningKeys(tenantId) {
   return signingKeys;
 }
 
-async function validateOfficeToken(request) {
+async function validateOfficeToken(request, context) {
   const authorization = request.headers.get("authorization") || "";
   const match = authorization.match(/^Bearer\s+(.+)$/i);
   if (!match) throw new RequestError(401, "Anmeldung erforderlich. Bitte Outlook erneut öffnen.");
 
   const tenantId = requiredSetting("TENANT_ID");
   const clientId = requiredSetting("CLIENT_ID");
-  const appIdUri = process.env.ADDIN_APP_ID_URI?.trim() || `api://${clientId}`;
+  const appIdUri = process.env.ADDIN_APP_ID_URI?.trim() ||
+    `api://polite-sky-0bea56210.4.azurestaticapps.net/${clientId}`;
   const acceptedIssuers = [
     `https://login.microsoftonline.com/${tenantId}/v2.0`,
     `https://sts.windows.net/${tenantId}/`,
@@ -68,10 +69,11 @@ async function validateOfficeToken(request) {
   try {
     ({ payload: tokenPayload } = await jwtVerify(match[1], getSigningKeys(tenantId), {
       issuer: acceptedIssuers,
-      audience: [clientId, appIdUri],
+      audience: [clientId, appIdUri, `api://${clientId}`],
     }));
-  } catch {
-    throw new RequestError(401, "Die Outlook-Anmeldung ist ungültig oder abgelaufen.");
+  } catch (error) {
+    context.error("Outlook token verification failed:", error);
+    throw new RequestError(401, `Token-Validierung fehlgeschlagen: ${error?.message || error}`);
   }
 
   const requiredScope = process.env.ADDIN_SSO_SCOPE?.trim() || "access_as_user";
@@ -284,7 +286,7 @@ app.http("sync-email", {
       }
 
       const payload = parsePayload(body);
-      const callerEmail = await validateOfficeToken(request);
+      const callerEmail = await validateOfficeToken(request, context);
       if (callerEmail !== payload.userEmail.toLowerCase()) {
         throw new RequestError(403, "Die angegebene Mailbox stimmt nicht mit der Outlook-Anmeldung überein.");
       }

@@ -22,7 +22,7 @@ Die Function benötigt diese App Settings:
 - `TENANT_ID` (Microsoft Entra Tenant-ID)
 - `CLIENT_ID` (Entra-App-ID, identisch mit der SSO-App-ID im Manifest)
 - `CLIENT_SECRET` (nur in Function-App-Einstellungen oder Key Vault)
-- `ADDIN_APP_ID_URI` (optional; Standard: `api://<CLIENT_ID>`, muss zur Manifest-Ressource passen)
+- `ADDIN_APP_ID_URI` (optional; Standard: `api://polite-sky-0bea56210.4.azurestaticapps.net/<CLIENT_ID>`, muss zur Manifest-Ressource passen)
 
 Die Entra-App muss die delegierte API-Berechtigung `access_as_user` bereitstellen. Für den serverseitigen Graph-Zugriff sind Application-Berechtigungen `Mail.Read` und `Sites.ReadWrite.All` mit Admin-Consent erforderlich. Da `Mail.Read` als App-Berechtigung grundsätzlich tenantweit lesen kann, die Mailbox-Zugriffe zusätzlich per Exchange Application RBAC auf die Mitarbeitenden begrenzen. Die Site-Auflösung sucht mit `GET /v1.0/sites?search=<teamspaceId>` und prüft die Website-Beschreibung; dafür benötigt die App tenantweite Site-Suchberechtigungen. `Sites.Selected` allein reicht für diese Suche nicht aus. Wenn tenantweite Site-Suche nicht genehmigt wird, muss die Architektur stattdessen eine explizite Site-ID-Zuordnung verwenden.
 
@@ -50,7 +50,7 @@ Microsoft beschreibt das Unified-Manifest-Sideloading unter [Sideload Office Add
 
 `production-build-variables.example` enthält nicht geheime Buildwerte. Beispieldomain und Organisationsangaben durch echte HTTPS-Werte ersetzen. Die ältere `.env.production.example` ist ein nicht mehr verwendeter SSO-Entwurf; Webpack liest sie nicht.
 
-Der Produktionsmanifest-Build setzt `ADDIN_MANIFEST_ID` und `ENTRA_CLIENT_ID` zusätzlich zur Add-in-Domain voraus. `ADDIN_MANIFEST_ID` ist die unveränderte Microsoft-365-Paket-ID der bestehenden Produktion; der Workflow setzt sie auf `a860814c-e238-4e66-b96a-5ac1f4dae627`, damit das neue Paket die veröffentlichte App aktualisiert. Der GitHub-Actions-Workflow liest die nicht geheime Entra-App-ID aus der Repository-Variable `ENTRA_CLIENT_ID`; diese Variable muss vor dem Push eingerichtet werden. Die Function-App-Einstellung `ADDIN_APP_ID_URI` muss mit der Ressource im Manifest übereinstimmen, falls statt des Standards `api://<CLIENT_ID>` eine eigene App-ID-URI verwendet wird. Für lokale SSO-Tests `webApplicationInfo.id` und `webApplicationInfo.resource` in `manifest.json` auf dieselbe App-Registrierung setzen.
+Der Produktionsmanifest-Build setzt `ADDIN_MANIFEST_ID` und `ENTRA_CLIENT_ID` zusätzlich zur Add-in-Domain voraus. `ADDIN_MANIFEST_ID` ist die unveränderte Microsoft-365-Paket-ID der bestehenden Produktion; der Workflow setzt sie auf `a860814c-e238-4e66-b96a-5ac1f4dae627`, damit das neue Paket die veröffentlichte App aktualisiert. Der GitHub-Actions-Workflow liest die nicht geheime Entra-App-ID aus der Repository-Variable `ENTRA_CLIENT_ID`; diese Variable muss vor dem Push eingerichtet werden. Die Function-App-Einstellung `ADDIN_APP_ID_URI` muss mit der Ressource im Manifest übereinstimmen; der Standard ist `api://polite-sky-0bea56210.4.azurestaticapps.net/<CLIENT_ID>`. Für lokale SSO-Tests `webApplicationInfo.id` und `webApplicationInfo.resource` in `manifest.json` auf dieselbe App-Registrierung setzen.
 
 In PowerShell:
 
@@ -67,9 +67,9 @@ npm run build
 npm run validate:prod
 ```
 
-Der Build ersetzt im erzeugten Manifest Taskpane- und Icon-URLs, `validDomains` und Entwicklerangaben. Die vorhandene Add-in-GUID bleibt erhalten. Die Manifestversion muss für jedes veröffentlichte Update erhöht werden; das aktuelle Manifest steht auf `1.0.1`. Für Node-Builds und die SWA-Function-Runtime ist Node.js 22 festgelegt.
+Der Build ersetzt im erzeugten Manifest Taskpane- und Icon-URLs, `validDomains` und Entwicklerangaben. Die vorhandene Add-in-GUID bleibt erhalten. Die Manifestversion muss für jedes veröffentlichte Update erhöht werden; das aktuelle Manifest steht auf `1.0.2`. Für Node-Builds und die SWA-Function-Runtime ist Node.js 22 festgelegt.
 
-Es existiert derzeit kein Git-Release-Tag. Einen Tag wie `v1.0.1` erst auf dem finalen Release-Commit anlegen, nicht auf einem noch uncommitteten Arbeitsstand.
+Der Git-Tag `v1.0.1` kennzeichnet das vorherige Release. Den Tag `v1.0.2` erst auf dem finalen Release-Commit anlegen, nicht auf einem noch uncommitteten Arbeitsstand.
 
 Danach `dist/` und die API über die gewählte Azure-Pipeline veröffentlichen, HTTPS und `/api/projects` prüfen und die hochgeladene Manifestdatei validieren. Keine Zugangsdaten in die statischen `dist/`-Dateien aufnehmen.
 
