@@ -2,25 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Outlook Desktop (Edge Chromium)",
+      "name": "Outlook Web (New Outlook / OWA)",
       "type": "msedge",
-      "request": "attach",
-      "port": 9229,
-      "timeout": 600000,
-      "webRoot": "${workspaceRoot}",
-      "preLaunchTask": "Debug: Outlook Desktop",
-      "postDebugTask": "Stop Debug"
-    },
-    {
-      "name": "Outlook Desktop (Edge Legacy)",
-      "type": "office-addin",
-      "request": "attach",
-      "url": "https://localhost:3000/taskpane.html?_host_Info=Outlook$Win32$16.01$en-US$$$$0",
-      "port": 9222,
-      "timeout": 600000,
-      "webRoot": "${workspaceRoot}",
-      "preLaunchTask": "Debug: Outlook Desktop",
-      "postDebugTask": "Stop Debug"
+      "request": "launch",
+      "url": "https://outlook.office.com/mail/",
+      "webRoot": "${workspaceFolder}"
     }
   ]
 }

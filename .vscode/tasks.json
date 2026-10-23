@@ -38,11 +38,7 @@
       "command": "npm",
       "args": [
         "run",
-        "start",
-        "--",
-        "desktop",
-        "--app",
-        "excel"
+        "start:excel"
       ],
       "presentation": {
         "clear": true,
@@ -51,27 +47,14 @@
       "problemMatcher": []
     },
     {
-      "label": "Debug: Outlook Desktop",
-      "type": "shell",
-      "command": "npm",
-      "args": [
-        "run",
-        "start",
-        "--",
-        "desktop",
-        "--app",
-        "outlook"
-      ],
+      "label": "Sideload: New Outlook / OWA",
+      "type": "npm",
+      "script": "sideload:owa",
       "presentation": {
         "clear": true,
         "panel": "dedicated"
       },
-      "problemMatcher": [],
-      "script": "start",
-      "dependsOn": [
-        "Check OS",
-        "Install"
-      ]
+      "problemMatcher": []
     },
     {
       "label": "Debug: PowerPoint Desktop",
@@ -79,11 +62,7 @@
       "command": "npm",
       "args": [
         "run",
-        "start",
-        "--",
-        "desktop",
-        "--app",
-        "powerpoint"
+        "start:powerpoint"
       ],
       "presentation": {
         "clear": true,
@@ -97,12 +76,28 @@
       "command": "npm",
       "args": [
         "run",
-        "start",
-        "--",
-        "desktop",
-        "--app",
-        "word"
+        "start:word"
       ],
+      "presentation": {
+        "clear": true,
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start: Azure Functions",
+      "type": "npm",
+      "script": "start:api",
+      "presentation": {
+        "clear": true,
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start: Azurite",
+      "type": "npm",
+      "script": "start:storage",
       "presentation": {
         "clear": true,
         "panel": "dedicated"
