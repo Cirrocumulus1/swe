@@ -5,8 +5,7 @@ import { createRemoteJWKSet, jwtVerify } from "jose";
 const GRAPH_BASE_URL = "https://graph.microsoft.com/v1.0";
 const GRAPH_SCOPE = "https://graph.microsoft.com/.default";
 let graphCredential;
-let signingKeys;
-let signingKeysTenantId;
+const signingKeysByTenant = new Map();
 
 class RequestError extends Error {
   constructor(status, message) {
@@ -41,12 +40,13 @@ function requiredSetting(name) {
 }
 
 function getSigningKeys(tenantId) {
-  if (!signingKeys || signingKeysTenantId !== tenantId) {
-    const keysUrl = new URL(
+  let signingKeys = signingKeysByTenant.get(tenantId);
+  if (!signingKeys) {
+    const jwksUri = new URL(
       `https://login.microsoftonline.com/${encodeURIComponent(tenantId)}/discovery/v2.0/keys`
     );
-    signingKeys = createRemoteJWKSet(keysUrl);
-    signingKeysTenantId = tenantId;
+    signingKeys = createRemoteJWKSet(jwksUri);
+    signingKeysByTenant.set(tenantId, signingKeys);
   }
   return signingKeys;
 }
@@ -64,12 +64,14 @@ async function validateOfficeToken(request, context) {
     `https://login.microsoftonline.com/${tenantId}/v2.0`,
     `https://sts.windows.net/${tenantId}/`,
   ];
+  const acceptedAudiences = [clientId, appIdUri, `api://${clientId}`];
 
   let tokenPayload;
   try {
-    ({ payload: tokenPayload } = await jwtVerify(match[1], getSigningKeys(tenantId), {
+    ({ payload: tokenPayload } = await jwtVerify(match[1].trim(), getSigningKeys(tenantId), {
       issuer: acceptedIssuers,
-      audience: [clientId, appIdUri, `api://${clientId}`],
+      audience: acceptedAudiences,
+      algorithms: ["RS256"],
     }));
   } catch (error) {
     context.error("Outlook token verification failed:", error);

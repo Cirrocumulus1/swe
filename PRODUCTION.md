@@ -67,9 +67,9 @@ npm run build
 npm run validate:prod
 ```
 
-Der Build ersetzt im erzeugten Manifest Taskpane- und Icon-URLs, `validDomains` und Entwicklerangaben. Die vorhandene Add-in-GUID bleibt erhalten. Die Manifestversion muss für jedes veröffentlichte Update erhöht werden; das aktuelle Manifest steht auf `1.0.2`. Für Node-Builds und die SWA-Function-Runtime ist Node.js 22 festgelegt.
+Der Build ersetzt im erzeugten Manifest Taskpane- und Icon-URLs, `validDomains` und Entwicklerangaben. Die vorhandene Add-in-GUID bleibt erhalten. Die Manifestversion muss für jedes veröffentlichte Update erhöht werden; der nächste Uploadversuch verwendet `1.0.5`, da Version `1.0.4` bereits erstellt wurde. Für Node-Builds und die SWA-Function-Runtime ist Node.js 22 festgelegt.
 
-Der Git-Tag `v1.0.1` kennzeichnet das vorherige Release. Den Tag `v1.0.2` erst auf dem finalen Release-Commit anlegen, nicht auf einem noch uncommitteten Arbeitsstand.
+Der Git-Tag `v1.0.1` kennzeichnet das vorherige veröffentlichte Release; Tags `v1.0.2` und `v1.0.3` existieren lokal nicht. Den Tag `v1.0.5` erst auf dem finalen Release-Commit anlegen, nicht auf einem noch uncommitteten Arbeitsstand.
 
 Danach `dist/` und die API über die gewählte Azure-Pipeline veröffentlichen, HTTPS und `/api/projects` prüfen und die hochgeladene Manifestdatei validieren. Keine Zugangsdaten in die statischen `dist/`-Dateien aufnehmen.
 
