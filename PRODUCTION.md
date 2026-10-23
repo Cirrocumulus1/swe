@@ -67,9 +67,9 @@ npm run build
 npm run validate:prod
 ```
 
-Der Build ersetzt im erzeugten Manifest Taskpane- und Icon-URLs, `validDomains` und Entwicklerangaben. Die vorhandene Add-in-GUID bleibt erhalten. Die Manifestversion muss für jedes veröffentlichte Update erhöht werden. Das Produktionspaket verwendet die Manifestversion im ZIP-Dateinamen; jeder Rollout erhält daher einen neuen ZIP-Namen. Die nächste Version ist `1.0.6`; Version `1.0.5` wurde bereits veröffentlicht. Für Node-Builds und die SWA-Function-Runtime ist Node.js 22 festgelegt.
+Der Build ersetzt im erzeugten Manifest Taskpane- und Icon-URLs, `validDomains` und Entwicklerangaben. Die vorhandene Add-in-GUID bleibt erhalten. Die Manifestversion muss für jedes veröffentlichte Update erhöht werden. Das Produktionspaket verwendet die Manifestversion im ZIP-Dateinamen; jeder Rollout erhält daher einen neuen ZIP-Namen. Die nächste Version ist `1.0.7`; Version `1.0.6` wurde bereits veröffentlicht. Für Node-Builds und die SWA-Function-Runtime ist Node.js 22 festgelegt.
 
-Der Git-Tag `v1.0.5` kennzeichnet das vorherige Release. Den Tag `v1.0.6` auf dem finalen Release-Commit anlegen, nicht auf einem noch uncommitteten Arbeitsstand.
+Der Git-Tag `v1.0.6` kennzeichnet das vorherige Release. Den Tag `v1.0.7` auf dem finalen Release-Commit anlegen, nicht auf einem noch uncommitteten Arbeitsstand.
 
 Danach `dist/` und die API über die gewählte Azure-Pipeline veröffentlichen, HTTPS und `/api/projects` prüfen und die hochgeladene Manifestdatei validieren. Keine Zugangsdaten in die statischen `dist/`-Dateien aufnehmen.
 

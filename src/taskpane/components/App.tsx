@@ -339,10 +339,33 @@ const App: React.FC<{ title: string }> = ({ title }) => {
       }
 
       const userEmail = mailbox.userProfile.emailAddress;
-      const accessToken = await OfficeRuntime.auth.getAccessToken({
-        allowSignInPrompt: true,
-        allowConsentPrompt: true,
-      });
+      const payload = selection.itemIds.length === 1
+        ? {
+            userEmail,
+            itemId: selection.itemIds[0],
+            teamspaceId: project.id,
+            subject: selection.subjects[0] || "",
+          }
+        : {
+            userEmail,
+            itemIds: selection.itemIds,
+            teamspaceId: project.id,
+            subjects: selection.subjects,
+          };
+      let accessToken: string;
+      try {
+        accessToken = await Office.auth.getAccessToken({
+          allowSignInPrompt: true,
+          allowConsentPrompt: true,
+        });
+      } catch (authError) {
+        console.error("SSO Tokenabruf fehlgeschlagen:", authError);
+        const authMessage =
+          typeof authError === "object" && authError !== null && "message" in authError
+            ? String(authError.message)
+            : String(authError);
+        throw new Error(`Anmeldung fehlgeschlagen: ${authMessage}`);
+      }
       const response = await window.fetch("/api/sync-email", {
         method: "POST",
         headers: {
@@ -350,21 +373,7 @@ const App: React.FC<{ title: string }> = ({ title }) => {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify(
-          selection.itemIds.length === 1
-            ? {
-                userEmail,
-                itemId: selection.itemIds[0],
-                teamspaceId: project.id,
-                subject: selection.subjects[0] || "",
-              }
-            : {
-                userEmail,
-                itemIds: selection.itemIds,
-                teamspaceId: project.id,
-                subjects: selection.subjects,
-              }
-        ),
+        body: JSON.stringify(payload),
       });
 
       const result = (await response.json().catch(() => ({}))) as {
