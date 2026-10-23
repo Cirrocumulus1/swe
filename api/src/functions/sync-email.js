@@ -71,7 +71,6 @@ async function validateOfficeToken(request, context) {
     ({ payload: tokenPayload } = await jwtVerify(match[1].trim(), getSigningKeys(tenantId), {
       issuer: acceptedIssuers,
       audience: acceptedAudiences,
-      algorithms: ["RS256"],
     }));
   } catch (error) {
     context.error("Outlook token verification failed:", error);
