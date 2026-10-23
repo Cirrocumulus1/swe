@@ -21,11 +21,36 @@ function getJwksClient(tenantId) {
   return client;
 }
 
+function parseTokenHeader(token) {
+  const segments = token.split(".");
+  if (segments.length !== 3 || !/^[A-Za-z0-9_-]+$/.test(segments[0])) {
+    const error = new Error("The Outlook token is not a three-part JWT.");
+    error.code = "ERR_JWT_HEADER_INVALID";
+    throw error;
+  }
+
+  let header;
+  try {
+    header = JSON.parse(Buffer.from(segments[0], "base64url").toString("utf8"));
+  } catch {
+    const error = new Error("The Outlook token header is not valid base64url JSON.");
+    error.code = "ERR_JWT_HEADER_INVALID";
+    throw error;
+  }
+  if (!header || typeof header !== "object" || Array.isArray(header)) {
+    const error = new Error("The Outlook token header must be a JSON object.");
+    error.code = "ERR_JWT_HEADER_INVALID";
+    throw error;
+  }
+  return header;
+}
+
 export async function verifyOfficeToken(token, { tenantId, clientId, appIdUri }, createClient = getJwksClient) {
-  const decoded = jwt.decode(token, { complete: true });
-  const header = decoded && typeof decoded === "object" ? decoded.header : undefined;
-  if (header?.alg !== "RS256" || typeof header.kid !== "string" || !header.kid) {
-    const error = new Error("The Outlook token must use RS256 and include a key ID.");
+  const header = parseTokenHeader(token);
+  const hasKeyId = typeof header.kid === "string" && header.kid.length > 0;
+  if (header.alg !== "RS256" || !hasKeyId) {
+    const algorithm = typeof header.alg === "string" ? header.alg : "missing";
+    const error = new Error(`Expected RS256 with a key ID; received alg=${algorithm}, kidPresent=${hasKeyId}.`);
     error.code = "ERR_JWT_HEADER_INVALID";
     throw error;
   }
