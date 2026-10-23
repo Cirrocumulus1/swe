@@ -9,5 +9,5 @@ module.exports = Object.freeze({
   TERMS_OF_USE_URL: "https://swe-consult.de/impressum",
   PRODUCTION_NAME_SHORT: "Email Sync SharePoint",
   PRODUCTION_NAME_FULL: "Projektbasierter Email Sync auf SharePoint",
-  PRODUCTION_VERSION: "1.0.5",
+  PRODUCTION_VERSION: "1.0.6",
 });

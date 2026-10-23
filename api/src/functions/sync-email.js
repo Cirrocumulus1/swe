@@ -74,7 +74,7 @@ async function validateOfficeToken(request, context) {
     }));
   } catch (error) {
     context.error("Outlook token verification failed:", error);
-    throw new RequestError(401, `Token-Validierung fehlgeschlagen: ${error?.message || error}`);
+    throw new RequestError(401, "Die Outlook-Anmeldung konnte nicht geprüft werden. Bitte Outlook erneut öffnen.");
   }
 
   const requiredScope = process.env.ADDIN_SSO_SCOPE?.trim() || "access_as_user";
